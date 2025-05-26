@@ -1,0 +1,75 @@
+.main-container {
+  position: relative;
+  padding: 40px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+}
+
+.main-title {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #000000;
+}
+
+.bottom-info {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+
+.menu-list {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 0;
+  margin: 2;
+}
+
+.menu-item {
+  font-size: 18px;
+  color: #31b23a;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.menu-item:hover {
+  background-color: #31b23a;
+  color: white;
+}
+
+.title-with-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.soonmu-logo {
+  width: 70px;
+  height: auto;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #31b23a;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #de4949;
+}
