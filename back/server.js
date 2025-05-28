@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require("cors");
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 app.use(express.json());
@@ -8,10 +9,18 @@ app.use(cors({
     credentials: true,
 }));
 
-app.get('/api/test', (res) => {
-    console.log('test');
+app.use('/api', userRoutes);
+
+const db = require('./database/db');
+
+app.get('/', (req, res) => {
+    db.query('SELECT * FROM table_name', function (err, results, fields) {
+        if (err) throw err;
+        res.send(results);
+    });
 });
 
-app.listen(3001, () => {		// 3001번 포트로 서버 실행
-    console.log("서버 실행")
+const port = 3001;
+app.listen(port, () => {		// 3001번 포트로 서버 실행
+    console.log(`Server is running on port ${port}`);
 });

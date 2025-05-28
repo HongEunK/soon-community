@@ -2,82 +2,72 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 
-function Login() {
-  const navigate = useNavigate();
+const Login = () => {
+    const [id, setId] = useState('');
+    const [pw, setPw] = useState('');
+    const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    userId: '',
-    password: '',
-  });
-
-  const [errors, setErrors] = useState({});
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.userId) newErrors.userId = '회원 아이디를 입력하세요.';
-    if (!formData.password || formData.password.length < 8) {
-      newErrors.password = '비밀번호를 다시 입력해주세요.';
+    const loginSubmit = async () => {
+        if (id === '' || pw === '') {
+            alert('아이디 또는 비밀번호를 입력해주시기 바랍니다');
+            return
+        } else {
+            try {
+                const res = await fetch('http://localhost:3001/api/loginCheck', {
+                    method: 'POST',
+                    body: JSON.stringify({member_id: id, password: pw}),
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                });
+                const data = await res.json();
+                
+                alert(data);
+                if (res.status === 200) {
+                    navigate('/mainPage');
+                } else {
+                    setId('');
+                    setPw('');
+                    return;
+                }
+            } catch(err) {
+                console.log(err);
+            }
+        }
     }
-    return newErrors;
-  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length === 0) {
-      console.log('로그인 정보 제출:', formData);
-      // 로그인 성공 처리 (예: API 호출 등)
-      navigate('/mainPage');
+    const moveSignUP = () => {
+        navigate('/signup');
     }
-  };
 
-  return (
-    <div className="page-container">
-      <h2 className="page-title">로그인</h2>
-      <p className="page-subtitle">순천향대학교 건강관리 커뮤니티에 로그인 해주세요</p>
-      <form onSubmit={handleSubmit} className="form">
-        <InputField
-          name="userId"
-          placeholder="회원 아이디"
-          value={formData.userId}
-          onChange={handleChange}
-          error={errors.userId}
-        />
-        <InputField
-          name="password"
-          type="password"
-          placeholder="비밀번호"
-          value={formData.password}
-          onChange={handleChange}
-          error={errors.password}
-        />
-        <button type="submit" className="button">로그인</button>
-      </form>
-    </div>
-  );
-}
-
-function InputField({ name, type = 'text', placeholder, value, onChange, error }) {
-  return (
-    <div className="input-group">
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        className="input"
-      />
-      {error && <p className="error">{error}</p>}
-    </div>
-  );
-}
+    return (
+        <div className="page-container">
+            <h1 className="page-title">로그인</h1>
+            <div className="form">
+                <div className="input-group">
+                    <input
+                        type="text"
+                        placeholder="아이디"
+                        value={id}
+                        onChange={(e) => setId(e.target.value)}
+                        className="input"
+                    />
+                </div>
+                <div className="input-group">
+                    <input
+                        type="password"
+                        placeholder="비밀번호"
+                        value={pw}
+                        onChange={(e) => setPw(e.target.value)}
+                        className="input"
+                    />
+                </div>
+                <button type="submit" onClick={loginSubmit} className="button">로그인</button>
+                <button onClick={moveSignUP} className="button">회원가입</button>
+            </div>
+        </div>
+    );
+};
 
 export default Login;
