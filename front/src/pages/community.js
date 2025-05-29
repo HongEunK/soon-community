@@ -16,7 +16,10 @@ function Community() {
 
   return (
     <div className="main-container">
-      <button className="logout-btn">로그아웃</button>
+      <button className="logout-btn" onClick={() => {
+        localStorage.clear();
+        navigate('/'); 
+      }}>로그아웃</button>
       
       <div className="title-with-image" onClick={() => navigate('/mainPage')} style={{ cursor: 'pointer' }}>
         <img src={soonmuImg} alt="순무 로고" className="soonmu-logo" />

@@ -4,5 +4,9 @@ const userController = require('../controllers/user');	// 유저 컨트롤러 �
 
 router.post('/signup', userController.signup);			// 회원가입 부분
 router.post('/loginCheck', userController.loginCheck);	// 로그인 부분
+router.get('/member-profile/:member_id', userController.getMemberProfile);
+router.post('/member-profile', userController.createMemberProfile);
+router.post('/exercise-goal', userController.createExerciseGoal);
+router.get('/exercise-goal/:member_id', userController.getExerciseGoalsByMember);
 
 module.exports = router;

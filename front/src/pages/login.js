@@ -25,6 +25,7 @@ const Login = () => {
                 
                 alert(data);
                 if (res.status === 200) {
+                    localStorage.setItem('member_id', id);
                     navigate('/mainPage');
                 } else {
                     setId('');

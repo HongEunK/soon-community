@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import soonmuImg from '../soonmu02.png';
 import './base.css';
 
 function Profile() {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState(null);
+
+  const memberId = localStorage.getItem('member_id');
+
+  useEffect(() => {
+    axios.get(`http://localhost:3001/api/member-profile/${memberId}`)
+      .then((res) => setProfile(res.data))
+      .catch((err) => console.error('Error fetching profile:', err));
+  }, [memberId]);
 
   const menuItems = [
     { label: '프로필', path: '/profile' },
@@ -16,7 +26,10 @@ function Profile() {
 
   return (
     <div className="main-container">
-      <button className="logout-btn">로그아웃</button>
+      <button className="logout-btn" onClick={() => {
+        localStorage.clear();
+        navigate('/'); 
+      }}>로그아웃</button>
       
       <div className="title-with-image" onClick={() => navigate('/mainPage')} style={{ cursor: 'pointer' }}>
         <img src={soonmuImg} alt="순무 로고" className="soonmu-logo" />
@@ -39,7 +52,24 @@ function Profile() {
       </div>
       
       <div className="bottom-info">
-
+           <h2>회원 프로필</h2>
+        {profile ? (
+          <table className="profile-table">
+            <tbody>
+              <tr><td>회원 ID</td><td>{profile.member_id}</td></tr>
+              <tr><td>신장</td><td>{profile.height} cm</td></tr>
+              <tr><td>체중</td><td>{profile.weight} kg</td></tr>
+              <tr><td>활동 수준</td><td>{profile.activity_level}</td></tr>
+            </tbody>
+          </table>
+        ) : (
+          <div>
+            <p>아직 프로필이 없습니다.</p>
+            <button className="button" onClick={() => navigate('/createProfile')}>
+              프로필 생성하기
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

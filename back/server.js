@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require("cors");
 const userRoutes = require('./routes/userRoutes');
-
 const app = express();
+
 app.use(express.json());
 app.use(cors({
     origin: 'http://localhost:3000',
@@ -19,6 +19,16 @@ app.get('/', (req, res) => {
         res.send(results);
     });
 });
+
+app.post("/api/insert", (req,res) => {
+    const title = req.body.title;
+    const content = req.body.content;
+    const date = req.body.date
+    const sqlQuery = "INSERT INTO easyboard (title, content, date) VALUES (?,?,?)";
+    db.query(sqlQuery, [title, content, date], (err, result) => {
+        res.send('succ');
+    })
+})
 
 const port = 3001;
 app.listen(port, () => {		// 3001번 포트로 서버 실행

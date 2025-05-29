@@ -10,6 +10,7 @@ import Community from './pages/community';
 import HealthRecords from './pages/healthRecords';
 import ExerciseGoal from './pages/exerciseGoal';
 import ExerciseRecommend from './pages/exerciseRecommend';
+import CreateProfile from './pages/createProfile';
 
 function Home() {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ function App() {
         <Route path="/healthRecords" element={<HealthRecords />} />
         <Route path="/exerciseGoal" element={<ExerciseGoal />} />
         <Route path="/exerciseRecommend" element={<ExerciseRecommend />} />
+        <Route path="/createProfile" element={<CreateProfile />} />
       </Routes>
     </Router>
   );
