@@ -68,7 +68,7 @@ function ExerciseGoalPage() {
         className="logout-btn"
         onClick={() => {
           localStorage.clear();
-          navigate('/login');
+          navigate('/');
         }}
       >
         로그아웃

@@ -189,3 +189,147 @@ exports.getExerciseGoalsByMember = async (req, res) => {
     res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
 };
+
+// 운동 기록 추가
+exports.createExerciseRecord = async (req, res) => {
+  try {
+    const newRecord = req.body;
+    await userDB.insertExerciseRecord(newRecord);
+    res.status(201).json({ message: '운동 기록이 저장되었습니다.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '운동 기록 저장 중 오류 발생' });
+  }
+};
+
+// 운동 기록 조회
+exports.getExerciseRecords = async (req, res) => {
+  try {
+    const { member_id } = req.query;
+    const records = await userDB.getExerciseRecords(member_id);
+    res.json(records);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '운동 기록 조회 중 오류 발생' });
+  }
+};
+
+exports.createDietRecord = (req, res) => {
+  const {
+    member_id, food_name, amount, protein, fat,
+    carbohydrate, calories, intake_date
+  } = req.body;
+
+  const query = `
+    INSERT INTO diet_record 
+    (member_id, food_name, amount, protein, fat, carbohydrate, calories, intake_date) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(query, [member_id, food_name, amount, protein, fat, carbohydrate, calories, intake_date], (err, result) => {
+    if (err) {
+      console.error("Error inserting diet record:", err);
+      return res.status(500).send("DB error");
+    }
+    res.send("Diet record saved");
+  });
+};
+
+exports.getDietRecords = (req, res) => {
+  const { member_id } = req.query;
+  const query = `SELECT * FROM diet_record WHERE member_id = ? ORDER BY intake_date DESC`;
+
+  db.query(query, [member_id], (err, results) => {
+    if (err) {
+      console.error("Error fetching diet records:", err);
+      return res.status(500).send("DB error");
+    }
+    res.json(results);
+  });
+};
+
+exports.createHealthStatus = (req, res) => {
+  const { member_id, measurement_date, blood_pressure, blood_sugar, body_fat_percentage } = req.body;
+  const query = `
+    INSERT INTO health_status_record 
+    (member_id, measurement_date, blood_pressure, blood_sugar, body_fat_percentage)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(query, [member_id, measurement_date, blood_pressure, blood_sugar, body_fat_percentage], (err, result) => {
+    if (err) {
+      console.error("Error inserting health status:", err);
+      return res.status(500).send("DB error");
+    }
+    res.send("Health status saved");
+  });
+};
+
+exports.getHealthStatusRecords = (req, res) => {
+  const { member_id } = req.query;
+  const query = `SELECT * FROM health_status_record WHERE member_id = ? ORDER BY measurement_date DESC`;
+
+  db.query(query, [member_id], (err, results) => {
+    if (err) {
+      console.error("Error fetching health status records:", err);
+      return res.status(500).send("DB error");
+    }
+    res.json(results);
+  });
+};
+
+exports.getCommunityPosts = async (req, res) => {
+  try {
+    const posts = await userDB.getAllPostsWithTags();
+    res.status(200).json(posts);
+  } catch (err) {
+    console.error("게시글 조회 중 오류:", err);
+    res.status(500).json({ message: "게시글 조회 실패" });
+  }
+};
+
+exports.createPost = async (req, res) => {
+  try {
+    const { title, content, is_public, member_id, tags } = req.body;
+
+    if (!title || !content || typeof is_public === 'undefined' || !member_id) {
+      return res.status(400).json({ message: '필수 항목이 누락되었습니다.' });
+    }
+
+    // tags는 쉼표 구분 문자열일 수도 있으니 배열이면 그대로, 아니면 쉼표로 분리 처리
+    let tagArray = [];
+    if (tags) {
+      if (Array.isArray(tags)) {
+        tagArray = tags;
+      } else if (typeof tags === 'string') {
+        tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+      }
+    }
+
+    const result = await userDB.createPostWithTags({ title, content, is_public, member_id, tags: tagArray });
+
+    res.status(201).json({ message: '게시글이 성공적으로 작성되었습니다.', post_id: result.post_id });
+  } catch (err) {
+    console.error('게시글 작성 오류:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+// 게시글 상세 조회
+exports.getPostById = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await userDB.getPostById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
+    }
+
+    res.status(200).json(post);
+  } catch (err) {
+    console.error("게시글 상세 조회 오류:", err);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+};
+

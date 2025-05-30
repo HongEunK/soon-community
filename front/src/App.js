@@ -11,6 +11,8 @@ import HealthRecords from './pages/healthRecords';
 import ExerciseGoal from './pages/exerciseGoal';
 import ExerciseRecommend from './pages/exerciseRecommend';
 import CreateProfile from './pages/createProfile';
+import PostWrite from './pages/postWrite';
+import PostDetail from './pages/postDetail';
 
 function Home() {
   const navigate = useNavigate();
@@ -44,6 +46,8 @@ function App() {
         <Route path="/exerciseGoal" element={<ExerciseGoal />} />
         <Route path="/exerciseRecommend" element={<ExerciseRecommend />} />
         <Route path="/createProfile" element={<CreateProfile />} />
+        <Route path="/postWrite" element={<PostWrite />} />
+        <Route path="/post/:postId" element={<PostDetail />} />
       </Routes>
     </Router>
   );

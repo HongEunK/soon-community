@@ -1,10 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import soonmuImg from '../soonmu02.png';
 import './base.css';
+import axios from 'axios';
+import './community.css';
 
 function Community() {
   const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/api/community-posts')
+      .then((res) => {
+        setPosts(res.data);
+      })
+      .catch((err) => {
+        console.error('게시글 불러오기 실패:', err);
+      });
+  }, []);
 
   const menuItems = [
     { label: '프로필', path: '/profile' },
@@ -42,8 +55,38 @@ function Community() {
       </div>
       
       <div className="bottom-info">
+  <div style={{ textAlign: "right", marginBottom: "10px" }}>
+    <button
+      onClick={() => navigate("/postWrite")}
+      className="button write-button"
+    >
+      글 쓰기
+    </button>
+  </div>
 
+  <div className="post-list">
+    {posts.map((post) => (
+      <div
+        key={post.post_id}
+        className="post-card"
+        onClick={() => navigate(`/post/${post.post_id}`)}
+      >
+        <h3 className="post-title">{post.title}</h3>
+        <div className="post-meta">
+          <span>조회수: {post.view_count}</span>
+          <span>작성일: {new Date(post.created_date).toLocaleDateString()}</span>
+        </div>
+        <div className="post-tags">
+          {post.keyword_tags?.length
+            ? post.keyword_tags.split(',').map((tag, i) => (
+                <span key={i} className="tag-badge">#{tag.trim()}</span>
+              ))
+            : <span className="no-tag">태그 없음</span>}
+        </div>
       </div>
+    ))}
+  </div>
+</div>
     </div>
   );
 }
