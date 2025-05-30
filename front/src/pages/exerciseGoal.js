@@ -99,6 +99,7 @@ function ExerciseGoalPage() {
       </div>
 
       {/* 운동 목표 입력 폼 */}
+      <div className="bottom-info">
       <div className="form-container" style={{ marginTop: '40px' }}>
         <form onSubmit={handleSubmit} className="form">
           <div className="input-group">
@@ -155,6 +156,7 @@ function ExerciseGoalPage() {
           </table>
         )}
       </div>
+    </div>
     </div>
   );
 }

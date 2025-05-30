@@ -13,6 +13,7 @@ import ExerciseRecommend from './pages/exerciseRecommend';
 import CreateProfile from './pages/createProfile';
 import PostWrite from './pages/postWrite';
 import PostDetail from './pages/postDetail';
+import PostEdit from './pages/postEdit';
 
 function Home() {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ function App() {
         <Route path="/createProfile" element={<CreateProfile />} />
         <Route path="/postWrite" element={<PostWrite />} />
         <Route path="/post/:postId" element={<PostDetail />} />
+        <Route path="/community/edit/:postId" element={<PostEdit />} />
       </Routes>
     </Router>
   );

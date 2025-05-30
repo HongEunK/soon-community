@@ -19,6 +19,16 @@ router.post('/community-post', userController.createPost);
 
 router.get('/posts/:postId', userController.getPostById);
 
+router.get('/posts/:postId/likes/count', userController.getLikesCount);
+router.get('/posts/:postId/likes/check', userController.checkLiked);
+router.post('/posts/:postId/likes', userController.addLike);
+router.delete('/posts/:postId/likes', userController.removeLike);
+
+router.get('/posts/:postId/comments', userController.getComments);
+router.post('/posts/:postId/comments', userController.addComment);
+router.delete('/posts/:postId', userController.deletePost);
+router.put('/posts/:postId', userController.updatePost);
+
 // 게시글 상세 조회
 router.get('/:postId', async (req, res) => {
   const postId = req.params.postId;

@@ -38,7 +38,6 @@ function Community() {
         <img src={soonmuImg} alt="순무 로고" className="soonmu-logo" />
         <h1 className="main-title">순무</h1>
       </div>
-
       <div className="bottom-info">
         <ul className="menu-list">
           {menuItems.map((item) => (

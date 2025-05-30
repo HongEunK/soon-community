@@ -315,21 +315,268 @@ exports.createPost = async (req, res) => {
   }
 };
 
-// 게시글 상세 조회
-exports.getPostById = async (req, res) => {
-  const { postId } = req.params;
+exports.getPostById = (req, res) => {
+  const postId = req.params.postId;
 
-  try {
-    const post = await userDB.getPostById(postId);
+  // 1. 조회수 증가
+  db.query('UPDATE post SET view_count = view_count + 1 WHERE post_id = ?', [postId], (updateErr) => {
+    if (updateErr) {
+      console.error(updateErr);
+      return res.status(500).json({ message: '조회수 업데이트 실패' });
+    }
 
-    if (!post) {
+    // 2. 게시글 상세 조회 (작성자 닉네임 포함)
+    db.query(
+  `SELECT p.post_id, p.title, p.content, p.created_date, p.view_count,
+          p.member_id,
+          m.name AS author_name,
+          GROUP_CONCAT(pkt.keyword_tag SEPARATOR ', ') AS keyword_tags
+   FROM post p
+   LEFT JOIN post_keyword_tag pkt ON p.post_id = pkt.post_id
+   LEFT JOIN member m ON p.member_id = m.member_id
+   WHERE p.post_id = ?
+   GROUP BY p.post_id, m.name`,
+  [postId],
+  (selectErr, results) => {
+    if (selectErr) {
+      console.error(selectErr);
+      return res.status(500).json({ message: '게시글 조회 실패' });
+    }
+
+    if (results.length === 0) {
       return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
     }
 
-    res.status(200).json(post);
-  } catch (err) {
-    console.error("게시글 상세 조회 오류:", err);
-    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+    res.json(results[0]);
   }
+);
+
+  });
 };
 
+
+
+// 좋아요 개수 조회
+exports.getLikesCount = (req, res) => {
+  const postId = req.params.postId;
+  const query = 'SELECT COUNT(*) AS count FROM likes WHERE post_id = ?'; // post_likes -> likes
+  db.query(query, [postId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: '좋아요 개수 조회 실패' });
+    }
+    res.json({ count: results[0].count });
+  });
+};
+
+// 내가 좋아요 눌렀는지 조회
+exports.checkLiked = (req, res) => {
+  const postId = req.params.postId;
+  const memberId = req.query.memberId;
+  if (!memberId) return res.status(400).json({ message: 'memberId 필요' });
+
+  const query = 'SELECT 1 FROM likes WHERE post_id = ? AND member_id = ?'; // post_likes -> likes
+  db.query(query, [postId, memberId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: '좋아요 여부 조회 실패' });
+    }
+    res.json({ liked: results.length > 0 });
+  });
+};
+
+// 좋아요 누르기
+exports.addLike = (req, res) => {
+  const postId = req.params.postId;
+  const memberId = req.body.memberId;
+  if (!memberId) return res.status(400).json({ message: 'memberId 필요' });
+
+  const checkQuery = 'SELECT 1 FROM likes WHERE post_id = ? AND member_id = ?'; // post_likes -> likes
+  db.query(checkQuery, [postId, memberId], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({ message: '좋아요 추가 실패' });
+    }
+    if (checkResults.length > 0) {
+      return res.status(400).json({ message: '이미 좋아요를 누른 상태입니다.' });
+    }
+
+    const insertQuery = 'INSERT INTO likes (post_id, member_id) VALUES (?, ?)'; // post_likes -> likes
+    db.query(insertQuery, [postId, memberId], (insertErr) => {
+      if (insertErr) {
+        console.error(insertErr);
+        return res.status(500).json({ message: '좋아요 추가 실패' });
+      }
+      res.json({ message: '좋아요가 추가되었습니다.' });
+    });
+  });
+};
+
+// 좋아요 취소
+exports.removeLike = (req, res) => {
+  const postId = req.params.postId;
+  const memberId = req.query.memberId;
+  if (!memberId) return res.status(400).json({ message: 'memberId 필요' });
+
+  const deleteQuery = 'DELETE FROM likes WHERE post_id = ? AND member_id = ?'; // post_likes -> likes
+  db.query(deleteQuery, [postId, memberId], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: '좋아요 취소 실패' });
+    }
+    res.json({ message: '좋아요가 취소되었습니다.' });
+  });
+};
+
+// 댓글 목록 조회
+exports.getComments = (req, res) => {
+  const postId = req.params.postId;
+  const query = `
+    SELECT c.comment_id, c.content, c.created_date, c.member_id, m.name AS nickname
+    FROM comment c
+    JOIN member m ON c.member_id = m.member_id
+    WHERE c.post_id = ?
+    ORDER BY c.created_date ASC
+  `;
+  db.query(query, [postId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: '댓글 목록 조회 실패' });
+    }
+    res.json(results);
+  });
+};
+
+exports.addComment = (req, res) => {
+  const postId = req.params.postId;
+  const { content, member_id } = req.body;  // 수정: memberId → member_id
+  if (!content || !content.trim()) return res.status(400).json({ message: '댓글 내용을 입력하세요.' });
+  if (!member_id) return res.status(400).json({ message: '로그인이 필요합니다.' });
+
+  const query = 'INSERT INTO comment (post_id, member_id, content) VALUES (?, ?, ?)';
+  db.query(query, [postId, member_id, content.trim()], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: '댓글 등록 실패' });
+    }
+    res.json({ comment_id: result.insertId, message: '댓글이 등록되었습니다.' });
+  });
+};
+
+exports.deletePost = (req, res) => {
+  const postId = req.params.postId;
+  const member_id = req.query.memberId;  // 프론트에서 params로 보내는 멤버 아이디
+
+  if (!member_id) {
+    return res.status(400).json({ message: '로그인이 필요합니다.' });
+  }
+
+  // 먼저 게시글 작성자 확인
+  const checkQuery = 'SELECT member_id FROM post WHERE post_id = ?';
+  db.query(checkQuery, [postId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: '서버 오류' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
+    }
+
+    if (results[0].member_id !== member_id) {
+      return res.status(403).json({ message: '본인 게시글만 삭제할 수 있습니다.' });
+    }
+
+    // 작성자 맞으면 삭제 실행
+    const deleteQuery = 'DELETE FROM post WHERE post_id = ?';
+    db.query(deleteQuery, [postId], (err2, result) => {
+      if (err2) {
+        console.error(err2);
+        return res.status(500).json({ message: '게시글 삭제 실패' });
+      }
+      res.json({ message: '게시글이 삭제되었습니다.' });
+    });
+  });
+};
+
+exports.deletePost = (req, res) => {
+  const postId = req.params.postId;
+  const member_id = req.query.memberId;  // 프론트에서 params로 보내는 멤버 아이디
+
+  if (!member_id) {
+    return res.status(400).json({ message: '로그인이 필요합니다.' });
+  }
+
+  // 먼저 게시글 작성자 확인
+  const checkQuery = 'SELECT member_id FROM post WHERE post_id = ?';
+  db.query(checkQuery, [postId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: '서버 오류' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
+    }
+
+    if (results[0].member_id !== member_id) {
+      return res.status(403).json({ message: '본인 게시글만 삭제할 수 있습니다.' });
+    }
+
+    // 작성자 맞으면 삭제 실행
+    const deleteQuery = 'DELETE FROM post WHERE post_id = ?';
+    db.query(deleteQuery, [postId], (err2, result) => {
+      if (err2) {
+        console.error(err2);
+        return res.status(500).json({ message: '게시글 삭제 실패' });
+      }
+      res.json({ message: '게시글이 삭제되었습니다.' });
+    });
+  });
+};
+
+exports.updatePost = (req, res) => {
+  const postId = req.params.postId;
+  const member_id = req.body.member_id;
+
+  if (!member_id) {
+    return res.status(400).json({ message: '로그인이 필요합니다.' });
+  }
+
+  // 게시글 작성자 확인 + 기존 게시글 데이터 조회
+  const checkQuery = 'SELECT * FROM post WHERE post_id = ?';
+  db.query(checkQuery, [postId], (err, results) => {
+    if (err) {
+      console.error('게시글 확인 오류:', err);
+      return res.status(500).json({ message: '서버 오류' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
+    }
+
+    if (results[0].member_id !== member_id) {
+      return res.status(403).json({ message: '본인 게시글만 수정할 수 있습니다.' });
+    }
+
+    const originalPost = results[0];
+
+    // 요청 body에서 값 추출, 없으면 기존 값 유지
+    const title = req.body.title ?? originalPost.title;
+    const content = req.body.content ?? originalPost.content;
+    const is_public = typeof req.body.is_public === 'boolean' ? req.body.is_public : originalPost.is_public;
+
+    const updateQuery = `
+      UPDATE post 
+      SET title = ?, content = ?, is_public = ?
+      WHERE post_id = ?
+    `;
+    db.query(updateQuery, [title, content, is_public, postId], (err2, result) => {
+      if (err2) {
+        console.error('게시글 수정 오류:', err2);
+        return res.status(500).json({ message: '게시글 수정 실패' });
+      }
+      res.json({ message: '게시글이 수정되었습니다.' });
+    });
+  });
+};

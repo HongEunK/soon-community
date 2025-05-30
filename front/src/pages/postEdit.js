@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import soonmuImg from '../soonmu02.png';
 import './base.css';
-import './post.css';
 import axios from 'axios';
 
-function PostWrite() {
+function PostEdit() {
   const navigate = useNavigate();
+  const { postId } = useParams();
+  const member_id = localStorage.getItem('member_id');
 
   const menuItems = [
     { label: '프로필', path: '/profile' },
@@ -21,35 +22,45 @@ function PostWrite() {
   const [isPublic, setIsPublic] = useState(true);
   const [tags, setTags] = useState('');
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    axios.get(`http://localhost:3001/api/posts/${postId}`)
+      .then((res) => {
+        const post = res.data;
+        if (post.member_id !== member_id) {
+          alert('수정 권한이 없습니다.');
+          navigate('/community');
+          return;
+        }
+
+        setTitle(post.title);
+        setContent(post.content);
+        setIsPublic(post.is_public);
+        setTags(post.keyword_tags || '');
+      })
+      .catch((err) => {
+        console.error(err);
+        alert('게시글 정보를 불러오는 데 실패했습니다.');
+        navigate('/community');
+      });
+  }, [postId, member_id, navigate]);
+
+  const handleUpdate = async (e) => {
     e.preventDefault();
 
-    const member_id = localStorage.getItem('member_id');
-    if (!member_id) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
-      return;
-    }
-
-    const tagsArray = tags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
-
     try {
-      await axios.post('http://localhost:3001/api/community-post', {
+      await axios.put(`http://localhost:3001/api/posts/${postId}`, {
         title,
         content,
         is_public: isPublic,
+        tags,
         member_id,
-        tags,  // 쉼표로 구분된 문자열 그대로 보내기
       });
 
-      alert('게시글이 성공적으로 등록되었습니다.');
-      navigate('/community');
+      alert('게시글이 수정되었습니다.');
+      navigate(`/community`);
     } catch (error) {
-      console.error('게시글 등록 실패:', error);
-      alert('게시글 등록 중 오류가 발생했습니다.');
+      console.error(error);
+      alert('게시글 수정에 실패했습니다.');
     }
   };
 
@@ -73,7 +84,7 @@ function PostWrite() {
         <img src={soonmuImg} alt="순무 로고" className="soonmu-logo" />
         <h1 className="main-title">순무</h1>
       </div>
-
+      
       {/* 메뉴 영역 */}
       <div className="bottom-info">
         <ul className="menu-list">
@@ -92,8 +103,8 @@ function PostWrite() {
 
       <div className="bottom-info"></div>
       <div className="post-box post-form">
-        <h2>게시글 작성</h2>
-        <form onSubmit={handleSubmit}>
+        <h2>게시글 수정</h2>
+        <form onSubmit={handleUpdate}>
           <div className="form-group">
             <label>제목</label><br />
             <input
@@ -122,7 +133,7 @@ function PostWrite() {
           <div className="form-group" style={{ marginTop: '10px' }}>
             <label>공개 여부</label><br />
             <select
-              value={isPublic}
+              value={isPublic ? 'true' : 'false'}
               onChange={(e) => setIsPublic(e.target.value === 'true')}
               className="select-field"
             >
@@ -143,7 +154,7 @@ function PostWrite() {
           </div>
 
           <button type="submit" className="submit-btn">
-            등록하기
+            수정하기
           </button>
         </form>
       </div>
@@ -151,4 +162,4 @@ function PostWrite() {
   );
 }
 
-export default PostWrite;
+export default PostEdit;

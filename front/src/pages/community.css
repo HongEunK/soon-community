@@ -84,3 +84,171 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   text-align: left;
 }
+
+.like-button {
+  margin: 10px 0;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.like-button.liked {
+  background-color: #ff4081;
+  color: white;
+  font-weight: bold;
+}
+
+.comments-section {
+  margin-top: 20px;
+}
+
+.comment-input textarea {
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+.comment-item {
+  border-bottom: 1px solid #ddd;
+  padding: 8px 0;
+}
+
+.post-action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* 좋아요 버튼 스타일 - 기본 핑크 테마 */
+.like-btn {
+  padding: 8px 14px;
+  border: none;
+  background-color: #f06292; /* 연핑크 */
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: 500;
+}
+
+.like-btn.liked {
+  background-color: #ec407a; /* 진한 핑크 (선택된 상태) */
+  font-weight: bold;
+}
+
+.like-btn:hover {
+  background-color: #e91e63; /* 진한 핫핑크 (호버 시) */
+}
+
+/* 삭제 버튼 스타일 (빨간색) */
+.delete-btn {
+  padding: 8px 14px;
+  border: none;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+/* 댓글 전체 영역 */
+.comments-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #ccc;
+}
+
+/* 댓글 제목 */
+.comments-section h3 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #333;
+  text-align: left; /* 왼쪽 정렬 */
+}
+
+/* 댓글 입력 영역 */
+.comment-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  text-align: left; /* 왼쪽 정렬 */
+}
+
+.comment-input textarea {
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  resize: vertical;
+}
+
+/* 댓글 등록 버튼만 오른쪽 정렬 */
+.comment-input .button {
+  align-self: flex-end;
+  padding: 8px 16px;
+}
+
+/* 댓글 리스트 */
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 댓글 항목 */
+.comment-item {
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  text-align: left;
+}
+
+/* 댓글 메타 정보 */
+.comment-meta {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* 작성자 (왼쪽), 작성일 (오른쪽) */
+.comment-meta span:first-child {
+  text-align: left;
+}
+.comment-meta span:last-child {
+  text-align: right;
+}
+
+/* 댓글 내용 왼쪽 정렬 */
+.comment-content {
+  font-size: 15px;
+  color: #333;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+/* 기존 base.css 또는 community.css에 추가 */
+.edit-btn {
+  background-color: #4CAF50; /* 녹색 계열 */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.edit-btn:hover {
+  background-color: #45a049;
+}
+
+.post-action-buttons button {
+  font-size: 14px;
+}
