@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user');
+const userProfileController = require('../controllers/userProfile');
 const postController = require('../controllers/post');
 const likeController = require('../controllers/like');
 const healthController = require('../controllers/health');
@@ -8,8 +9,9 @@ const exerciseController = require('../controllers/exercise');
 
 router.post('/signup', userController.signup);
 router.post('/loginCheck', userController.loginCheck);
-router.get('/member-profile/:member_id', userController.getMemberProfile);
-router.post('/member-profile', userController.createMemberProfile);
+
+router.get('/member-profile/:member_id', userProfileController.getMemberProfile);
+router.post('/member-profile', userProfileController.createMemberProfile);
 
 router.post('/exercise-goal', exerciseController.createExerciseGoal);
 router.get('/exercise-goal/:member_id', exerciseController.getExerciseGoalsByMember);
