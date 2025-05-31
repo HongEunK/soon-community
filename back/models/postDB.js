@@ -69,7 +69,7 @@ exports.getAllPostsWithTagsByMember = async (memberId) => {
         p.view_count,
         p.is_public,
         p.member_id,
-        m.name AS author_name,
+        m.member_id AS author_id,
         GROUP_CONCAT(pkt.keyword_tag SEPARATOR ', ') AS keyword_tags
       FROM post p
       LEFT JOIN member m ON p.member_id = m.member_id

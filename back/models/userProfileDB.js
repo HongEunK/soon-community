@@ -2,18 +2,28 @@ const db = require('../database/db'); // 데이터베이스 연결 설정
 
 exports.getMemberProfile = (memberId) => {
   const query = `
-    SELECT m.member_id, mp.height, mp.weight, mp.activity_level
+    SELECT 
+      m.member_id, 
+      m.name,
+      mp.height, 
+      mp.weight, 
+      mp.activity_level,
+      hik.keyword_id,
+      hik.keyword_name
     FROM member m
     JOIN member_profile mp ON m.member_id = mp.member_id
+    LEFT JOIN selection s ON mp.profile_id = s.profile_id
+    LEFT JOIN health_issue_keyword hik ON s.keyword_id = hik.keyword_id
     WHERE m.member_id = ?
   `;
   return new Promise((resolve, reject) => {
     db.query(query, [memberId], (err, results) => {
       if (err) reject(err);
-      else resolve(results || []);  // results가 undefined일 수 있으니 기본값 빈 배열
+      else resolve(results || []);
     });
   });
 };
+
 
 exports.getMaxProfileId = () => {
   return new Promise((resolve, reject) => {
@@ -32,6 +42,19 @@ exports.insertMemberProfile = ({ profile_id, height, weight, activity_level, mem
 
   return new Promise((resolve, reject) => {
     db.query(insertQuery, [profile_id, height, weight, activity_level, member_id], (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+};
+
+exports.insertSelection = ({ profile_id, keyword_id }) => {
+  const query = `
+    INSERT INTO selection (profile_id, keyword_id)
+    VALUES (?, ?)
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(query, [profile_id, keyword_id], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });

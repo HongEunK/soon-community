@@ -80,6 +80,7 @@ function Community() {
   {!post.is_public && (
     <span className="private-label">[비공개]</span>
   )}
+  <span>작성자: {post.author_id}</span>
   <span>조회수: {post.view_count}</span>
   <span>작성일: {new Date(post.created_date).toLocaleDateString()}</span>
 </div>
