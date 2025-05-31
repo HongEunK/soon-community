@@ -14,6 +14,9 @@ router.get('/member-profile/:member_id', userProfileController.getMemberProfile)
 router.post('/member-profile', userProfileController.createMemberProfile);
 router.get('/health-keywords', userProfileController.getHealthKeywords);
 
+router.get('/health_issue_keywords', userProfileController.getHealthKeywords);
+router.get('/exercise-recommendations', exerciseController.getExerciseRecommendationsByTarget);
+
 router.post('/exercise-goal', exerciseController.createExerciseGoal);
 router.get('/exercise-goal/:member_id', exerciseController.getExerciseGoalsByMember);
 

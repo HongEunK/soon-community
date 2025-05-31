@@ -27,3 +27,19 @@ exports.getExerciseGoalsByMember = (member_id) => {
     });
   });
 };
+
+exports.getExerciseRecommendationsByTarget = (target) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT er.exercise_id, er.exercise_name
+      FROM exercise_recommendation er
+      JOIN exercise_recommendation_target ert ON er.exercise_id = ert.exercise_id
+      WHERE ert.target = ?
+      ORDER BY er.exercise_id ASC
+    `;
+    db.query(query, [target], (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+};

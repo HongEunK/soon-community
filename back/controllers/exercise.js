@@ -29,3 +29,18 @@ exports.getExerciseGoalsByMember = async (req, res) => {
     res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
 };
+
+exports.getExerciseRecommendationsByTarget = async (req, res) => {
+  try {
+    const target = req.query.target;
+    if (!target) {
+      return res.status(400).json({ error: 'target 쿼리 파라미터가 필요합니다.' });
+    }
+
+    const recommendations = await exerciseDB.getExerciseRecommendationsByTarget(target);
+    res.status(200).json(recommendations);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+  }
+};
