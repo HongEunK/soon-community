@@ -14,6 +14,7 @@ exports.getPostDetailById = (postId) => {
   return new Promise((resolve, reject) => {
     const query = `
       SELECT p.post_id, p.title, p.content, p.created_date, p.view_count,
+             p.is_public, 
              p.member_id,
              m.name AS author_name,
              GROUP_CONCAT(pkt.keyword_tag SEPARATOR ', ') AS keyword_tags

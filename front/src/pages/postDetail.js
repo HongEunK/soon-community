@@ -156,19 +156,20 @@ const handleDeletePost = () => {
     <span style={{ marginLeft: '10px' }}>좋아요: {likesCount}</span>
   </div>
 
-{/* 내 글일 때만 삭제 버튼 표시 */}
 <div className="post-action-buttons">
   {post.member_id.trim() === member_id?.trim() && (
-    <button className="delete-btn" onClick={handleDeletePost}>
-      게시글 삭제
-    </button>
+    <>
+      <button className="delete-btn" onClick={handleDeletePost}>
+        게시글 삭제
+      </button>
+      <button
+        className="edit-btn"
+        onClick={() => navigate(`/community/edit/${postId}`)}
+      >
+        게시글 수정
+      </button>
+    </>
   )}
-<button
-      className="edit-btn"
-      onClick={() => navigate(`/community/edit/${postId}`)}
-    >
-      게시글 수정
-    </button>
   <button
     className={`like-btn ${liked ? 'liked' : ''}`}
     onClick={handleLikeToggle}
@@ -176,6 +177,7 @@ const handleDeletePost = () => {
     {liked ? '좋아요 취소' : '좋아요'} ({likesCount})
   </button>
 </div>
+
 
             <div className="post-content-box">
               {post.content}
