@@ -17,30 +17,31 @@ const PostDetail = () => {
   const member_id = localStorage.getItem('member_id');
 
   useEffect(() => {
-    // 게시글 상세 조회
-    axios.get(`http://localhost:3001/api/posts/${postId}`)
-      .then((res) => setPost(res.data))
-      .catch((err) => console.error(err));
+  if (!member_id) return;
 
-    // 댓글 목록 조회
-    axios.get(`http://localhost:3001/api/posts/${postId}/comments`)
-      .then((res) => setComments(res.data))
-      .catch((err) => console.error(err));
-
-    // 좋아요 개수 조회
-    axios.get(`http://localhost:3001/api/posts/${postId}/likes/count`)
-      .then((res) => setLikesCount(res.data.count))
-      .catch((err) => console.error(err));
-
-    // 내가 좋아요 눌렀는지 조회
-    if (member_id) {
-      axios.get(`http://localhost:3001/api/posts/${postId}/likes/check`, {
-      params: { memberId: member_id }  // 서버에서 요구하는 키 이름은 그대로 유지
+  // 게시글 + 댓글 같이 조회
+  axios.get(`http://localhost:3001/api/posts/${postId}`, {
+    params: { member_id }  // 여기에 꼭 포함
+  })
+    .then((res) => {
+      setPost(res.data.post);
+      setComments(res.data.comments);
     })
-        .then((res) => setLiked(res.data.liked))
-        .catch((err) => console.error(err));
-    }
-  }, [postId, member_id]);
+    .catch((err) => console.error(err));
+
+  // 좋아요 수
+  axios.get(`http://localhost:3001/api/posts/${postId}/likes/count`)
+    .then((res) => setLikesCount(res.data.count))
+    .catch((err) => console.error(err));
+
+  // 내가 좋아요 눌렀는지
+  axios.get(`http://localhost:3001/api/posts/${postId}/likes/check`, {
+    params: { memberId: member_id }
+  })
+    .then((res) => setLiked(res.data.liked))
+    .catch((err) => console.error(err));
+}, [postId, member_id]);
+
 
   const handleCommentSubmit = async () => {
   try {
@@ -106,7 +107,6 @@ const handleDeletePost = () => {
       alert('게시글 삭제에 실패했습니다.');
     });
 };
-
 
   const menuItems = [
     { label: '프로필', path: '/profile' },
@@ -176,7 +176,6 @@ const handleDeletePost = () => {
     {liked ? '좋아요 취소' : '좋아요'} ({likesCount})
   </button>
 </div>
-
 
             <div className="post-content-box">
               {post.content}

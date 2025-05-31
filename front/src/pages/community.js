@@ -9,15 +9,20 @@ function Community() {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
 
-  useEffect(() => {
-    axios.get('http://localhost:3001/api/community-posts')
-      .then((res) => {
-        setPosts(res.data);
-      })
-      .catch((err) => {
-        console.error('게시글 불러오기 실패:', err);
-      });
-  }, []);
+ useEffect(() => {
+  const memberId = localStorage.getItem('member_id');  // 로그인 시 저장해둔 ID
+
+  axios.get('http://localhost:3001/api/community-posts', {
+    params: { memberId }
+  })
+    .then((res) => {
+      setPosts(res.data);
+    })
+    .catch((err) => {
+      console.error('게시글 불러오기 실패:', err);
+    });
+}, []);
+
 
   const menuItems = [
     { label: '프로필', path: '/profile' },
@@ -72,9 +77,12 @@ function Community() {
       >
         <h3 className="post-title">{post.title}</h3>
         <div className="post-meta">
-          <span>조회수: {post.view_count}</span>
-          <span>작성일: {new Date(post.created_date).toLocaleDateString()}</span>
-        </div>
+  {!post.is_public && (
+    <span className="private-label">[비공개]</span>
+  )}
+  <span>조회수: {post.view_count}</span>
+  <span>작성일: {new Date(post.created_date).toLocaleDateString()}</span>
+</div>
         <div className="post-tags">
           {post.keyword_tags?.length
             ? post.keyword_tags.split(',').map((tag, i) => (

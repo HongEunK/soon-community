@@ -23,26 +23,28 @@ function PostEdit() {
   const [tags, setTags] = useState('');
 
   useEffect(() => {
-    axios.get(`http://localhost:3001/api/posts/${postId}`)
-      .then((res) => {
-        const post = res.data;
-        if (post.member_id !== member_id) {
-          alert('수정 권한이 없습니다.');
-          navigate('/community');
-          return;
-        }
+  axios.get(`http://localhost:3001/api/posts/${postId}`, {
+    params: { member_id }
+  })
+  .then((res) => {
+    const { post, comments } = res.data;
+    if (post.member_id !== member_id) {
+      alert('수정 권한이 없습니다.');
+      navigate('/community');
+      return;
+    }
+    setTitle(post.title);
+    setContent(post.content);
+    setIsPublic(post.is_public);
+    setTags(post.keyword_tags || '');
+  })
+  .catch((err) => {
+    console.error(err);
+    alert('게시글 정보를 불러오는 데 실패했습니다.');
+    navigate('/community');
+  });
+}, [postId, member_id, navigate]);
 
-        setTitle(post.title);
-        setContent(post.content);
-        setIsPublic(post.is_public);
-        setTags(post.keyword_tags || '');
-      })
-      .catch((err) => {
-        console.error(err);
-        alert('게시글 정보를 불러오는 데 실패했습니다.');
-        navigate('/community');
-      });
-  }, [postId, member_id, navigate]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();

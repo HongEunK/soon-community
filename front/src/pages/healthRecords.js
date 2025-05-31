@@ -24,11 +24,12 @@ function HealthRecords() {
   });
 
   const [healthStatus, setHealthStatus] = useState({
-    measurement_date: '',
-    blood_pressure: 'normal',
-    blood_sugar: 'normal',
-    body_fat_percentage: '',
-  });
+  measurement_date: '',
+  blood_pressure: 'normal',
+  blood_sugar: 'normal',
+  body_fat_percentage: 'normal',
+});
+
 
   const [diet, setDiet] = useState({
     food_name: '',
@@ -159,9 +160,9 @@ function HealthRecords() {
           <input type="text" name="exercise_type" placeholder="운동 종류" value={exercise.exercise_type} onChange={handleChange} className="input" />
           <input type="number" name="exercise_duration" placeholder="운동 시간 (분)" value={exercise.exercise_duration} onChange={handleChange} className="input" />
           <select name="exercise_intensity" value={exercise.exercise_intensity} onChange={handleChange} className="input">
-            <option value="low">낮음</option>
-            <option value="moderate">보통</option>
-            <option value="high">높음</option>
+            <option value="low">운동 강도 : 낮음</option>
+            <option value="moderate">운동 강도 : 보통</option>
+            <option value="high">운동 강도 : 높음</option>
           </select>
           <input type="number" name="calories_burned" placeholder="소모 칼로리 (kcal)" value={exercise.calories_burned} onChange={handleChange} className="input" />
           <button type="submit" className="button">저장</button>
@@ -171,14 +172,14 @@ function HealthRecords() {
         <form onSubmit={(e) => { e.preventDefault(); submitHealthStatus(); }} className="form">
           <input type="date" name="measurement_date" value={healthStatus.measurement_date} onChange={handleHealthChange} className="input" />
           <select name="blood_pressure" value={healthStatus.blood_pressure} onChange={handleHealthChange} className="input">
-            <option value="low">낮음</option>
-            <option value="normal">보통</option>
-            <option value="high">높음</option>
+            <option value="low">혈압 : 낮음</option>
+            <option value="normal">혈압 : 보통</option>
+            <option value="high">혈압 : 높음</option>
           </select>
           <select name="blood_sugar" value={healthStatus.blood_sugar} onChange={handleHealthChange} className="input">
-            <option value="low">낮음</option>
-            <option value="normal">보통</option>
-            <option value="high">높음</option>
+            <option value="low">혈당 : 낮음</option>
+            <option value="normal">혈당 : 보통</option>
+            <option value="high">혈당 : 높음</option>
           </select>
           <select
     name="body_fat_percentage"
@@ -186,11 +187,10 @@ function HealthRecords() {
     onChange={handleHealthChange}
     className="input"
   >
-    <option value="">체지방률 선택</option>
-    <option value="underfat">부족</option>
-    <option value="normal">정상</option>
-    <option value="overweight">과체중</option>
-    <option value="obese">비만</option>
+    <option value="underfat">체지방률 : 부족</option>
+    <option value="normal">체지방률 : 정상</option>
+    <option value="overweight">체지방률 : 과체중</option>
+    <option value="obese">체지방률 : 비만</option>
   </select>
           <button type="submit" className="button">저장</button>
         </form>
