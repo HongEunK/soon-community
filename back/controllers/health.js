@@ -96,3 +96,33 @@ exports.getHealthStatusRecords = async (req, res) => {
     res.status(500).send("DB error");
   }
 };
+
+exports.getLatestHealthStatusEvaluation = async (req, res) => {
+  try {
+    const { member_id } = req.query;
+    if (!member_id) return res.status(400).json({ error: 'member_id가 필요합니다.' });
+
+    // 최근 건강 상태 기록 조회
+    const latestStatus = await healthDB.getLatestHealthStatus(member_id);
+    if (!latestStatus) {
+      return res.status(404).json({ message: '최근 건강 상태 기록이 없습니다.' });
+    }
+
+    // 평가 조회
+    const evaluation = await healthDB.getHealthStatusEvaluation(
+      latestStatus.blood_pressure,
+      latestStatus.blood_sugar,
+      latestStatus.body_fat_percentage
+    );
+
+    if (!evaluation) {
+      return res.status(404).json({ message: '해당 건강 상태 평가가 없습니다.' });
+    }
+
+    res.json(evaluation);
+
+  } catch (err) {
+    console.error('Error fetching health status evaluation:', err);
+    res.status(500).json({ error: '서버 오류 발생' });
+  }
+};

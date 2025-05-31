@@ -88,3 +88,35 @@ exports.getExerciseRecords = (memberId) => {
     });
   });
 };
+
+exports.getLatestHealthStatus = (member_id) => {
+  const query = `
+    SELECT blood_pressure, blood_sugar, body_fat_percentage 
+    FROM health_status_record 
+    WHERE member_id = ? 
+    ORDER BY measurement_date DESC 
+    LIMIT 1
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(query, [member_id], (err, results) => {
+      if (err) reject(err);
+      else resolve(results[0] || null);
+    });
+  });
+};
+
+exports.getHealthStatusEvaluation = (blood_pressure, blood_sugar, body_fat_percentage) => {
+  const query = `
+    SELECT * FROM health_status_evaluation 
+    WHERE blood_pressure = ? 
+      AND blood_sugar = ? 
+      AND body_fat_percentage = ?
+    LIMIT 1
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(query, [blood_pressure, blood_sugar, body_fat_percentage], (err, results) => {
+      if (err) reject(err);
+      else resolve(results[0] || null);
+    });
+  });
+};

@@ -39,5 +39,6 @@ router.post('/diet-record', healthController.createDietRecord);
 router.get('/diet-record', healthController.getDietRecords);
 router.post('/health-status-record', healthController.createHealthStatus);
 router.get('/health-status-record', healthController.getHealthStatusRecords);
+router.get('/health-status-evaluation', healthController.getLatestHealthStatusEvaluation);
 
 module.exports = router;
