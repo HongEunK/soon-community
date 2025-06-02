@@ -68,7 +68,7 @@ const PostDetail = () => {
   }
 };
 const handleLikeToggle = () => {
-  const member_id = localStorage.getItem('member_id'); // 수정된 부분
+  const member_id = localStorage.getItem('member_id');
   if (!member_id) return alert('로그인이 필요합니다.');
 
   if (liked) {
@@ -91,6 +91,7 @@ const handleLikeToggle = () => {
       .catch((err) => console.error(err));
   }
 };
+
 
 const handleDeletePost = () => {
   if (!window.confirm('정말 이 게시글을 삭제하시겠습니까?')) return;

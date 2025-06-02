@@ -75,3 +75,32 @@ exports.loginCheck = async (req, res) => {
         res.status(500).json(err);
     }
 }
+
+exports.withdraw = async (req, res) => {
+    const { member_id, password } = req.body;
+
+    try {
+        // 사용자 존재 여부 확인
+        const getUser = await userDB.getUser(member_id);
+        if (!getUser.length) {
+            res.status(404).json('존재하지 않는 회원입니다.');
+            return;
+        }
+
+        // 비밀번호 확인
+        const blobToStr = Buffer.from(getUser[0].password).toString();
+        const isMatch = await hashCompare(password, blobToStr);
+
+        if (!isMatch) {
+            res.status(401).json('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        // 회원 삭제
+        await userDB.deleteUser(member_id);
+        res.status(200).json('회원 탈퇴가 완료되었습니다.');
+    } catch (err) {
+        console.error(err);
+        res.status(500).json('서버 오류로 인해 탈퇴에 실패했습니다.');
+    }
+};

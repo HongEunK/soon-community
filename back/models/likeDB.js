@@ -1,18 +1,27 @@
 const db = require('../database/db'); // 데이터베이스 연결 설정
 
+// exports.getLikesCountByPostId = (postId) => {
+//   return new Promise((resolve, reject) => {
+//     const query = 'SELECT COUNT(*) AS count FROM likes WHERE post_id = ?';
+//     db.query(query, [postId], (err, results) => {
+//       if (err) reject(err);
+//       else resolve(results[0].count);
+//     });
+//   });
+// };
 exports.getLikesCountByPostId = (postId) => {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT COUNT(*) AS count FROM likes WHERE post_id = ?';
+    const query = 'SELECT like_count FROM post WHERE post_id = ?';
     db.query(query, [postId], (err, results) => {
       if (err) reject(err);
-      else resolve(results[0].count);
+      else resolve(results.length ? results[0].like_count : 0);
     });
   });
 };
 
 exports.checkIfLiked = (postId, memberId) => {
   return new Promise((resolve, reject) => {
-    const query = 'SELECT 1 FROM likes WHERE post_id = ? AND member_id = ?';
+    const query = 'SELECT 1 FROM likes WHERE post_id = ? AND member_id = ? LIMIT 1';
     db.query(query, [postId, memberId], (err, results) => {
       if (err) reject(err);
       else resolve(results.length > 0);

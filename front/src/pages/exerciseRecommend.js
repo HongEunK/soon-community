@@ -19,6 +19,7 @@ function ExerciseRecommend() {
   const [profile, setProfile] = useState(null);
   const [selectedKeyword, setSelectedKeyword] = useState('');
   const [recommendations, setRecommendations] = useState([]);
+  const [rankingList, setRankingList] = useState([]);  // 랭킹용 상태 추가
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -72,6 +73,18 @@ function ExerciseRecommend() {
         setRecommendations([]);
       });
   }, [selectedKeyword]);
+
+  // 랭킹 운동 추천 데이터 가져오기
+  useEffect(() => {
+    axios.get('http://localhost:3001/api/exercise-recommendation-rank')
+      .then(res => {
+        setRankingList(res.data);
+      })
+      .catch(err => {
+        console.error('운동 추천 랭킹 조회 오류:', err);
+        setRankingList([]);
+      });
+  }, []);
 
   if (loading) {
     return <div>로딩 중...</div>;
@@ -135,6 +148,31 @@ function ExerciseRecommend() {
                   {recommendations.map(ex => (
                     <tr key={ex.exercise_id}>
                       <td style={{ padding: '8px' }}>{ex.exercise_name}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* 랭킹 추천 영역 */}
+            <h2 style={{ marginTop: '40px' }}>운동 추천 랭킹</h2>
+            {rankingList.length === 0 ? (
+              <p>랭킹 데이터가 없습니다.</p>
+            ) : (
+              <table className="profile-table" style={{ width: '100%', marginTop: '10px' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'center', padding: '8px' }}>순위</th>
+                    <th style={{ textAlign: 'left', padding: '8px' }}>운동 이름</th>
+                    <th style={{ textAlign: 'center', padding: '8px' }}>추천 횟수</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rankingList.map(item => (
+                    <tr key={item.exercise_id}>
+                      <td style={{ textAlign: 'center', padding: '8px' }}>{item.rank_position}</td>
+                      <td style={{ padding: '8px' }}>{item.exercise_name}</td>
+                      <td style={{ textAlign: 'center', padding: '8px' }}>{item.recommend_count}</td>
                     </tr>
                   ))}
                 </tbody>

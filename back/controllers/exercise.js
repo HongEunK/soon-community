@@ -44,3 +44,14 @@ exports.getExerciseRecommendationsByTarget = async (req, res) => {
     res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
 };
+
+
+exports.getExerciseRecommendationRank = async (req, res) => {
+  try {
+    const rankList = await exerciseDB.getExerciseRecommendationRank();
+    res.status(200).json(rankList);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+  }
+};

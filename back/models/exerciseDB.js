@@ -30,14 +30,30 @@ exports.getExerciseGoalsByMember = (member_id) => {
 
 exports.getExerciseRecommendationsByTarget = (target) => {
   return new Promise((resolve, reject) => {
-    const query = `
-      SELECT er.exercise_id, er.exercise_name
-      FROM exercise_recommendation er
-      JOIN exercise_recommendation_target ert ON er.exercise_id = ert.exercise_id
-      WHERE ert.target = ?
-      ORDER BY er.exercise_id ASC
-    `;
+    const query = 'CALL getExerciseRecommendationsByTargetProc(?)';
     db.query(query, [target], (err, results) => {
+      if (err) reject(err);
+      else {
+        resolve(results[0]);
+      }
+    });
+  });
+};
+
+exports.getExerciseRecommendationRank = () => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT
+  r.exercise_id,
+  e.exercise_name,
+  COUNT(*) AS recommend_count,
+  RANK() OVER (ORDER BY COUNT(*) DESC) AS rank_position
+FROM recommendation r
+JOIN exercise_recommendation e ON r.exercise_id = e.exercise_id
+GROUP BY r.exercise_id, e.exercise_name
+ORDER BY recommend_count DESC;
+    `;
+    db.query(query, (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });

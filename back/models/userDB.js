@@ -21,3 +21,12 @@ exports.getUser = (member_id) => {
         });
     });
 };
+
+exports.deleteUser = (member_id) => {
+    return new Promise((resolve, reject) => {
+        db.query(`DELETE FROM member WHERE member_id = ?`, [member_id], (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+        });
+    });
+};
