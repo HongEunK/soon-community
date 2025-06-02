@@ -1,128 +1,122 @@
-const db = require('../database/db');
-const healthDB = require('../models/healthDB');
+const db = require('../database/db'); // 데이터베이스 연결 설정
 
-exports.createExerciseRecord = async (req, res) => {
-  try {
-    const newRecord = req.body;
-    await healthDB.insertExerciseRecord(newRecord);
-    res.status(201).json({ message: '운동 기록이 저장되었습니다.' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: '운동 기록 저장 중 오류 발생' });
-  }
-};
+exports.insertDietRecord = ({ member_id, food_name, amount, protein, fat, carbohydrate, calories, intake_date }) => {
+  const query = `
+    INSERT INTO diet_record 
+    (member_id, food_name, amount, protein, fat, carbohydrate, calories, intake_date) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
-exports.getExerciseRecords = async (req, res) => {
-  try {
-    const { member_id } = req.query;
-    const records = await healthDB.getExerciseRecords(member_id);
-    res.json(records);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: '운동 기록 조회 중 오류 발생' });
-  }
-};
-
-exports.createDietRecord = async (req, res) => {
-  try {
-    const {
-      member_id, food_name, amount, protein, fat,
-      carbohydrate, calories, intake_date
-    } = req.body;
-
-    if (!member_id || !food_name || !amount || !protein || !fat || !carbohydrate || !calories || !intake_date) {
-      return res.status(400).json({ error: '필수 값이 누락되었습니다.' });
-    }
-
-    await healthDB.insertDietRecord({ member_id, food_name, amount, protein, fat, carbohydrate, calories, intake_date });
-
-    res.status(200).json({ message: "Diet record saved" });
-  } catch (err) {
-    console.error("Error inserting diet record:", err);
-    res.status(500).send("DB error");
-  }
-};
-
-exports.getDietRecords = async (req, res) => {
-  try {
-    const { member_id } = req.query;
-    if (!member_id) return res.status(400).json({ error: 'member_id가 필요합니다.' });
-
-    const results = await healthDB.getDietRecordsByMember(member_id);
-    res.json(results);
-  } catch (err) {
-    console.error("Error fetching diet records:", err);
-    res.status(500).send("DB error");
-  }
-};
-
-exports.createHealthStatus = async (req, res) => {
-  try {
-    const { member_id, measurement_date, blood_pressure, blood_sugar, body_fat_percentage } = req.body;
-
-    if (!member_id || !measurement_date) {
-      return res.status(400).json({ error: '필수 값이 누락되었습니다.' });
-    }
-
-    // 유효하지 않은 body_fat_percentage 처리
-    const allowedValues = ['underfat', 'normal', 'overweight', 'obese'];
-    const bodyFat = allowedValues.includes(body_fat_percentage) ? body_fat_percentage : 'normal';
-
-    await healthDB.insertHealthStatus({
-      member_id,
-      measurement_date,
-      blood_pressure,
-      blood_sugar,
-      body_fat_percentage: bodyFat,
+  return new Promise((resolve, reject) => {
+    db.query(query, [member_id, food_name, amount, protein, fat, carbohydrate, calories, intake_date], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
     });
-
-    res.status(200).json({ message: "Health status saved" });
-  } catch (err) {
-    console.error("Error inserting health status:", err);
-    res.status(500).send("DB error");
-  }
+  });
 };
 
-
-exports.getHealthStatusRecords = async (req, res) => {
-  try {
-    const { member_id } = req.query;
-    if (!member_id) return res.status(400).json({ error: 'member_id가 필요합니다.' });
-
-    const results = await healthDB.getHealthStatusRecordsByMember(member_id);
-    res.json(results);
-  } catch (err) {
-    console.error("Error fetching health status records:", err);
-    res.status(500).send("DB error");
-  }
+exports.getDietRecordsByMember = (member_id) => {
+  const query = `SELECT * FROM diet_record WHERE member_id = ? ORDER BY intake_date DESC`;
+  return new Promise((resolve, reject) => {
+    db.query(query, [member_id], (err, results) => {
+      if (err) reject(err);
+      else resolve(results || []);
+    });
+  });
 };
 
-exports.getLatestHealthStatusEvaluation = async (req, res) => {
-  try {
-    const { member_id } = req.query;
-    if (!member_id) return res.status(400).json({ error: 'member_id가 필요합니다.' });
+exports.insertHealthStatus = ({ member_id, measurement_date, blood_pressure, blood_sugar, body_fat_percentage }) => {
+  const query = `
+    INSERT INTO health_status_record 
+    (member_id, measurement_date, blood_pressure, blood_sugar, body_fat_percentage)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(query, [member_id, measurement_date, blood_pressure, blood_sugar, body_fat_percentage], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+};
 
-    // 최근 건강 상태 기록 조회
-    const latestStatus = await healthDB.getLatestHealthStatus(member_id);
-    if (!latestStatus) {
-      return res.status(404).json({ message: '최근 건강 상태 기록이 없습니다.' });
-    }
+exports.getHealthStatusRecordsByMember = (member_id) => {
+  const query = `SELECT * FROM health_status_record WHERE member_id = ? ORDER BY measurement_date DESC`;
+  return new Promise((resolve, reject) => {
+    db.query(query, [member_id], (err, results) => {
+      if (err) reject(err);
+      else resolve(results || []);
+    });
+  });
+};
 
-    // 평가 조회
-    const evaluation = await healthDB.getHealthStatusEvaluation(
-      latestStatus.blood_pressure,
-      latestStatus.blood_sugar,
-      latestStatus.body_fat_percentage
-    );
+// 운동 기록 삽입
+exports.insertExerciseRecord = (record) => {
+  const {
+    exercise_date,
+    exercise_type,
+    exercise_duration,
+    exercise_intensity,
+    calories_burned,
+    member_id
+  } = record;
 
-    if (!evaluation) {
-      return res.status(404).json({ message: '해당 건강 상태 평가가 없습니다.' });
-    }
+  const query = `
+    INSERT INTO exercise_record (exercise_date, exercise_type, exercise_duration, exercise_intensity, calories_burned, member_id)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  const values = [exercise_date, exercise_type, exercise_duration, exercise_intensity, calories_burned, member_id];
 
-    res.json(evaluation);
+  return new Promise((resolve, reject) => {
+    db.query(query, values, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+};
 
-  } catch (err) {
-    console.error('Error fetching health status evaluation:', err);
-    res.status(500).json({ error: '서버 오류 발생' });
-  }
+// 운동 기록 조회
+exports.getExerciseRecords = (memberId) => {
+  const query = `
+    SELECT * FROM exercise_record
+    WHERE member_id = ?
+    ORDER BY exercise_date DESC
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(query, [memberId], (err, results) => {
+      if (err) reject(err);
+      else resolve(results || []);
+    });
+  });
+};
+
+exports.getLatestHealthStatus = (member_id) => {
+  const query = `
+    SELECT blood_pressure, blood_sugar, body_fat_percentage 
+    FROM health_status_record 
+    WHERE member_id = ? 
+    ORDER BY measurement_date DESC 
+    LIMIT 1
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(query, [member_id], (err, results) => {
+      if (err) reject(err);
+      else resolve(results[0] || null);
+    });
+  });
+};
+
+exports.getHealthStatusEvaluation = (blood_pressure, blood_sugar, body_fat_percentage) => {
+  const query = `
+    SELECT * FROM health_status_evaluation 
+    WHERE blood_pressure = ? 
+      AND blood_sugar = ? 
+      AND body_fat_percentage = ?
+    LIMIT 1
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(query, [blood_pressure, blood_sugar, body_fat_percentage], (err, results) => {
+      if (err) reject(err);
+      else resolve(results[0] || null);
+    });
+  });
 };
