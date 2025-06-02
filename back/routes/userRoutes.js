@@ -43,5 +43,9 @@ router.get('/diet-record', healthController.getDietRecords);
 router.post('/health-status-record', healthController.createHealthStatus);
 router.get('/health-status-record', healthController.getHealthStatusRecords);
 router.get('/health-status-evaluation', healthController.getLatestHealthStatusEvaluation);
+router.get('/daily-health-summary', healthController.getDailyHealthSummary);
+
+router.put('/member-profile/:member_id', userProfileController.updateMemberProfile);
+router.get('/health-issue-keywords', userProfileController.getHealthKeywords);
 
 module.exports = router;

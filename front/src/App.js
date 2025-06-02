@@ -14,6 +14,7 @@ import CreateProfile from './pages/createProfile';
 import PostWrite from './pages/postWrite';
 import PostDetail from './pages/postDetail';
 import PostEdit from './pages/postEdit';
+import ProfileEdit from './pages/profileEdit';
 
 function Home() {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/mainPage" element={<MainPage />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/profile-edit" element={<ProfileEdit />} /> 
         <Route path="/community" element={<Community />} />
         <Route path="/healthRecords" element={<HealthRecords />} />
         <Route path="/exerciseGoal" element={<ExerciseGoal />} />

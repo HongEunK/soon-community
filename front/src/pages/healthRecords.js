@@ -9,6 +9,8 @@ function HealthRecords() {
   const [exerciseRecords, setExerciseRecords] = useState([]);
   const [dietRecords, setDietRecords] = useState([]);
   const [healthStatusRecords, setHealthStatusRecords] = useState([]);
+  const [dailySummary, setDailySummary] = useState([]);
+  const [selectedDate, setSelectedDate] = useState('');
 
   const [exercise, setExercise] = useState({
     exercise_date: '',
@@ -54,6 +56,10 @@ function HealthRecords() {
   const handleDietChange = (e) => {
     setDiet({ ...diet, [e.target.name]: e.target.value });
   };
+
+  const handleDateChange = (e) => {
+  setSelectedDate(e.target.value);
+};
 
   const submitExercise = async () => {
     const member_id = localStorage.getItem('member_id');
@@ -143,7 +149,47 @@ function HealthRecords() {
     fetchAll();
   }, []);
 
+useEffect(() => {
+  const memberId = localStorage.getItem('member_id');
+  const fetchDailySummary = async () => {
+    try {
+      const res = await axios.get(`http://localhost:3001/api/daily-health-summary?member_id=${memberId}`);
+      setDailySummary(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
+  fetchDailySummary();
+}, []);
+
+
+useEffect(() => {
+  const memberId = localStorage.getItem('member_id');
+  if (!selectedDate) return; // 날짜 선택 안 하면 호출 안 함
+
+  const fetchDailySummaryByDate = async () => {
+    try {
+      const res = await axios.get('http://localhost:3001/api/daily-health-summary', {
+        params: {
+          member_id: memberId,
+          date: selectedDate,
+        },
+      });
+      setDailySummary(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchDailySummaryByDate();
+}, [selectedDate]);
+
+
+useEffect(() => {
+  const today = new Date().toISOString().slice(0, 10);
+  setSelectedDate(today);
+}, []);
 
   return (
     <div className="main-container">
@@ -171,6 +217,47 @@ function HealthRecords() {
           ))}
         </ul>
       </div>
+<h2>일별 통합 건강 정보</h2>
+<input
+  type="date"
+  value={selectedDate}
+  onChange={handleDateChange}
+  className="input"
+/>
+<table className="profile-table">
+  <thead>
+    <tr>
+      <th>날짜</th>
+      <th>운동 시간(분)</th>
+      <th>소모 칼로리(kcal)</th>
+      <th>혈압</th>
+      <th>혈당</th>
+      <th>체지방률</th>
+      <th>총 섭취량</th>
+      <th>섭취 칼로리(kcal)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {dailySummary.length === 0 ? (
+      <tr>
+        <td colSpan={8} style={{ textAlign: 'center' }}>해당 날짜의 데이터가 없습니다.</td>
+      </tr>
+    ) : (
+      dailySummary.map((record, idx) => (
+        <tr key={idx}>
+          <td>{record.record_date ? new Date(record.record_date).toLocaleDateString() : '-'}</td>
+          <td>{record.total_exercise_duration || '-'}</td>
+          <td>{record.total_calories_burned || '-'}</td>
+          <td>{record.blood_pressure || '-'}</td>
+          <td>{record.blood_sugar || '-'}</td>
+          <td>{record.body_fat_percentage || '-'}</td>
+          <td>{record.total_amount || '-'}</td>
+          <td>{record.total_calories || '-'}</td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
 
       <div className="bottom-info">
         <div className="form-container">

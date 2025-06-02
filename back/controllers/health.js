@@ -126,3 +126,20 @@ exports.getLatestHealthStatusEvaluation = async (req, res) => {
     res.status(500).json({ error: '서버 오류 발생' });
   }
 };
+
+exports.getDailyHealthSummary = async (req, res) => {
+  try {
+    const { member_id, date } = req.query;
+
+    if (!member_id) {
+      return res.status(400).json({ error: 'member_id가 필요합니다.' });
+    }
+
+    const summary = await healthDB.getDailyHealthSummary(member_id, date);
+
+    res.json(summary);
+  } catch (err) {
+    console.error('Error fetching daily health summary:', err);
+    res.status(500).json({ error: '서버 오류 발생' });
+  }
+};

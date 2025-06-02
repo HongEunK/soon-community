@@ -60,3 +60,39 @@ exports.insertSelection = ({ profile_id, keyword_id }) => {
     });
   });
 };
+
+exports.updateMemberProfile = ({ member_id, height, weight, activity_level }) => {
+  const query = `
+    UPDATE member_profile
+    SET height = ?, weight = ?, activity_level = ?
+    WHERE member_id = ?
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(query, [height, weight, activity_level, member_id], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+};
+
+exports.getProfileIdByMemberId = (member_id) => {
+  const query = `SELECT profile_id FROM member_profile WHERE member_id = ?`;
+
+  return new Promise((resolve, reject) => {
+    db.query(query, [member_id], (err, results) => {
+      if (err) reject(err);
+      else resolve(results[0]?.profile_id || null);
+    });
+  });
+};
+
+exports.deleteSelectionByProfileId = (profile_id) => {
+  const query = `DELETE FROM selection WHERE profile_id = ?`;
+
+  return new Promise((resolve, reject) => {
+    db.query(query, [profile_id], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+};

@@ -79,6 +79,10 @@ function Profile() {
 </tbody>
 
     </table>
+    {/* 프로필 수정하기 버튼 추가 */}
+    <button className="button" onClick={() => navigate('/profile-edit')} style={{ marginTop: '10px' }}>
+      프로필 수정하기
+    </button>
   </>
 ) : (
   <div>

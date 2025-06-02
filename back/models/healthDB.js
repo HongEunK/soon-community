@@ -120,3 +120,25 @@ exports.getHealthStatusEvaluation = (blood_pressure, blood_sugar, body_fat_perce
     });
   });
 };
+
+exports.getDailyHealthSummary = (member_id, date) => {
+  let query = `
+    SELECT * FROM daily_health_summary
+    WHERE member_id = ?
+  `;
+  const params = [member_id];
+
+  if (date) {
+    query += ` AND record_date = ?`;
+    params.push(date);
+  }
+
+  query += ` ORDER BY record_date DESC`;
+
+  return new Promise((resolve, reject) => {
+    db.query(query, params, (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+};
