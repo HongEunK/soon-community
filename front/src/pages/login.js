@@ -8,35 +8,44 @@ const Login = () => {
     const navigate = useNavigate();
 
     const loginSubmit = async () => {
-        if (id === '' || pw === '') {
-            alert('아이디 또는 비밀번호를 입력해주시기 바랍니다');
-            return
-        } else {
-            try {
-                const res = await fetch('http://localhost:3001/api/loginCheck', {
-                    method: 'POST',
-                    body: JSON.stringify({member_id: id, password: pw}),
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                });
-                const data = await res.json();
-                
-                alert(data);
-                if (res.status === 200) {
-                    localStorage.setItem('member_id', id);
-                    navigate('/mainPage');
-                } else {
-                    setId('');
-                    setPw('');
-                    return;
-                }
-            } catch(err) {
-                console.log(err);
-            }
-        }
+    if (id === '' || pw === '') {
+        alert('아이디 또는 비밀번호를 입력해주시기 바랍니다');
+        return;
     }
+
+    try {
+        const res = await fetch('http://localhost:3001/api/loginCheck', {
+            method: 'POST',
+            body: JSON.stringify({ member_id: id, password: pw }),
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        const data = await res.json();
+
+        if (res.status === 200) {
+            localStorage.setItem('member_id', id);
+            localStorage.setItem('role', data.role); // role 저장
+
+            // 역할에 따라 이동
+            if (data.role === 'admin') {
+                navigate('/admin'); // 관리자 페이지
+            } else {
+                navigate('/mainPage'); // 일반 사용자
+            }
+        } else {
+            alert(data.message || '로그인 실패');
+            setId('');
+            setPw('');
+        }
+    } catch (err) {
+        console.log(err);
+        alert('서버 오류가 발생했습니다');
+    }
+};
+
 
     const moveSignUP = () => {
         navigate('/signup');

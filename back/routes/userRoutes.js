@@ -6,6 +6,7 @@ const postController = require('../controllers/post');
 const likeController = require('../controllers/like');
 const healthController = require('../controllers/health');
 const exerciseController = require('../controllers/exercise');
+const adminController = require('../controllers/admin');
 
 router.post('/signup', userController.signup);
 router.post('/loginCheck', userController.loginCheck);
@@ -47,5 +48,10 @@ router.get('/daily-health-summary', healthController.getDailyHealthSummary);
 
 router.put('/member-profile/:member_id', userProfileController.updateMemberProfile);
 router.get('/health-issue-keywords', userProfileController.getHealthKeywords);
+
+router.get('/admin/members', adminController.getAllMembers);
+router.delete('/admin/members/:member_id', adminController.deleteMember);
+router.get('/admin/posts', adminController.getAllPosts);
+router.delete('/admin/posts/:post_id', adminController.deletePost);
 
 module.exports = router;

@@ -1,0 +1,50 @@
+.admin-page-container {
+  max-width: 900px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+}
+
+.admin-exit-button {
+  margin-bottom: 20px;
+  background-color: #0275d8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.admin-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 40px;
+}
+
+.admin-table thead tr {
+  background-color: #f0f0f0;
+}
+
+.admin-table th,
+.admin-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+.admin-table td.text-center {
+  text-align: center;
+}
+
+.delete-button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}

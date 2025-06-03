@@ -15,6 +15,7 @@ import PostWrite from './pages/postWrite';
 import PostDetail from './pages/postDetail';
 import PostEdit from './pages/postEdit';
 import ProfileEdit from './pages/profileEdit';
+import AdminPage from './pages/adminPage';
 
 function Home() {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ function App() {
         <Route path="/postWrite" element={<PostWrite />} />
         <Route path="/post/:postId" element={<PostDetail />} />
         <Route path="/community/edit/:postId" element={<PostEdit />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
     </Router>
   );

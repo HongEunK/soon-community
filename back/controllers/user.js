@@ -58,7 +58,7 @@ exports.loginCheck = async (req, res) => {
     try {
         const getUser = await userDB.getUser(member_id);
         if (!getUser.length) {
-            res.status(401).json('존재하지 않는 아이디입니다.');
+            res.status(401).json({ message: '존재하지 않는 아이디입니다.' });
             return;
         }
 
@@ -66,15 +66,21 @@ exports.loginCheck = async (req, res) => {
         const isMatch = await hashCompare(password, blobToStr);
 
         if (!isMatch) {
-            res.status(401).json('비밀번호가 일치하지 않습니다.');
+            res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
             return;
         }
-        res.status(200).json('로그인 성공');
+
+        // 로그인 성공 시 role과 함께 반환
+        res.status(200).json({
+            message: '로그인 성공',
+            member_id: getUser[0].member_id,
+            role: getUser[0].role, // 'user' 또는 'admin'
+        });
     } catch (err) {
         console.error(err);
-        res.status(500).json(err);
+        res.status(500).json({ message: '서버 오류', error: err });
     }
-}
+};
 
 exports.withdraw = async (req, res) => {
     const { member_id, password } = req.body;
